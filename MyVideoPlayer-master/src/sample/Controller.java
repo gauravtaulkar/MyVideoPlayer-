@@ -28,17 +28,17 @@ public class Controller implements Initializable {
     @FXML
     private MediaView mediaView;
 
-
     @FXML
     private Button playBtn;
+
     @FXML
     private Button preBtn;
+
     @FXML
     private Button nextBtn;
 
     @FXML
     private Slider timeSlider;
-
 
     @FXML
     void openSongMenu(ActionEvent event) {
@@ -47,59 +47,51 @@ public class Controller implements Initializable {
             FileChooser chooser = new FileChooser();
             File file = chooser.showOpenDialog(null);
 
-            Media m = new Media(file.toURI().toURL().toString());
+            if (file != null) { // Check if a file is selected
+                Media m = new Media(file.toURI().toString());
 
-            if (player != null) {
-                player.dispose();
-            }
-
-
-            player = new MediaPlayer(m);
-
-            mediaView.setMediaPlayer(player);
-
-            //time slider...
-
-            player.setOnReady(() -> {
-                //when player gets ready..
-                timeSlider.setMin(0);
-                timeSlider.setMax(player.getMedia().getDuration().toMinutes());
-
-                timeSlider.setValue(0);
-                try {
-                    playBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\play.png"))));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                if (player != null) {
+                    player.dispose();
                 }
 
+                player = new MediaPlayer(m);
+                mediaView.setMediaPlayer(player);
 
-            });
+                // Rest of your code...
+                player.setOnReady(() -> {
+                    // When player gets ready...
+                    timeSlider.setMin(0);
+                    timeSlider.setMax(player.getMedia().getDuration().toMinutes());
 
-            //listener on player...
-
-            player.currentTimeProperty().addListener(new ChangeListener<Duration>() {
-                @Override
-                public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-                    //coding...
-                    Duration d = player.getCurrentTime();
-
-                    timeSlider.setValue(d.toMinutes());
-                }
-            });
-
-//            time slider
-
-            timeSlider.valueProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    if (timeSlider.isPressed()) {
-                        double val = timeSlider.getValue();
-                        player.seek(new Duration(val * 60 * 1000));
+                    timeSlider.setValue(0);
+                    try {
+                        playBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\play.png"))));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
-                }
-            });
+                });
 
+                // Listener on player...
+                player.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+                        // Coding...
+                        Duration d = player.getCurrentTime();
+                        timeSlider.setValue(d.toMinutes());
+                    }
+                });
 
+                // Time slider
+                timeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                        if (timeSlider.isPressed()) {
+                            double val = timeSlider.getValue();
+                            player.seek(new Duration(val * 60 * 1000));
+                        }
+                    }
+                });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,29 +99,20 @@ public class Controller implements Initializable {
 
     @FXML
     void play(ActionEvent event) {
-
         try {
-
             MediaPlayer.Status status = player.getStatus();
 
             if (status == MediaPlayer.Status.PLAYING) {
-                ///pause...
                 player.pause();
-//            playBtn.setText("Play");
                 playBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\play.png"))));
             } else {
                 player.play();
-//            playBtn.setText("Pause");
                 playBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\pause.png"))));
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -137,32 +120,22 @@ public class Controller implements Initializable {
             playBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\play.png"))));
             preBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\previous.png"))));
             nextBtn.setGraphic(new ImageView(new Image(new FileInputStream("MyVideoPlayer-master\\src\\icons\\next.png"))));
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
     @FXML
     void preBtnClick(ActionEvent event) {
         double d = player.getCurrentTime().toSeconds();
-
         d = d - 10;
-
         player.seek(new Duration(d * 1000));
-
     }
-
 
     @FXML
     void nextBtnClick(ActionEvent event) {
         double d = player.getCurrentTime().toSeconds();
-
         d = d + 10;
-
         player.seek(new Duration(d * 1000));
-
     }
 }
